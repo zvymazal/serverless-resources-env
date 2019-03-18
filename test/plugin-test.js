@@ -123,6 +123,15 @@ describe('serverless-fetch-stack-resource', () => {
           }), { stage: 'from_option' });
       expect(instance.getStackName()).to.equal('a_service-from_option');
     });
+
+    it('uses stack name of config provider if set', () => {
+      const instance = new ServerlessFetchStackResources(
+          _.extend({}, serverlessStub, {
+            config: {},
+            service: { service: 'a_service', provider: { stackName: 'stack_name' } },
+          }), { stage: 'from_option' });
+      expect(instance.getStackName()).to.equal('stack_name-from_option');
+    });
   });
 
   describe('fetchCFResources', () => {

@@ -45,8 +45,6 @@ class ServerlessResourcesEnv {
    * @returns {Promise.<TResult>}
    */
   afterDeploy() {
-    const stackName = this.getStackName();
-
     // First fetch all of our Resources from AWS by doing a network call
     return this.fetchCFResources().then((resourceResult) => {
       // Map these to an object keyed by the Logical id pointing to the PhysicalId
@@ -57,7 +55,7 @@ class ServerlessResourcesEnv {
 
       // For each function, update the env files on that function.
       const updatePromises = _.map(_.keys(this.serverless.service.functions), (functionName) => {
-        const awsFunctionName = `${stackName}-${functionName}`;
+        const awsFunctionName = `${this.serverless.service.service}-${this.getStage()}-${functionName}`;
         const resourceList = _.map(
             this.serverless.service.functions[functionName].custom &&
             this.serverless.service.functions[functionName].custom['env-resources'],
@@ -250,7 +248,11 @@ class ServerlessResourcesEnv {
    * @returns {string}
    */
   getStackName() {
-    return `${this.serverless.service.service}-${this.getStage()}`;
+    let returnValue = `${this.serverless.service.service}-${this.getStage()}`;
+    if (this.serverless.service.provider.stackName) {
+      returnValue = this.serverless.service.provider.stackName;
+    }
+    return returnValue;
   }
 }
 
